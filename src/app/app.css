@@ -80,6 +80,29 @@
   gap: 0.5rem;
   flex-shrink: 0;
   margin-left: auto;
+  position: relative;
+  z-index: 110;
+}
+
+@media (max-width: 1023px) {
+  .site-header__row--mobile {
+    gap: 0.5rem;
+  }
+
+  .site-logo {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .site-header__search-mobile {
+    padding-top: 0.15rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-logo {
+    justify-content: flex-start;
+  }
 }
 
 .header-icon-btn {
@@ -379,4 +402,118 @@
   display: grid;
   grid-template-columns: 1fr 2.75rem;
   gap: 0.5rem;
+}
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgb(73 52 59 / 0.45);
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  z-index: 210;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #f8f1ed;
+  border-color: #ece4de;
+  box-shadow: 0 20px 40px rgb(73 52 59 / 0.2);
+}
+
+.drawer--left {
+  left: 0;
+  width: min(100%, 22rem);
+  border-right: 1px solid #ece4de;
+  padding: 1.25rem;
+  overflow-y: auto;
+}
+
+.drawer--right {
+  right: 0;
+  width: min(100%, 28rem);
+  border-left: 1px solid #ece4de;
+}
+
+.wa-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  background: #25d366;
+  color: #fff;
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.wa-icon-btn:hover {
+  filter: brightness(0.95);
+}
+
+.wa-icon-btn--large {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+}
+
+.wa-icon-btn--footer {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+}
+
+.pagination {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pagination__pages {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pagination__page,
+.pagination__arrow {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.65rem;
+  border: 1px solid #ece4de;
+  background: #fff;
+  color: #49343b;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.pagination__page:hover,
+.pagination__arrow:hover:not(:disabled) {
+  border-color: #b97983;
+  color: #b97983;
+}
+
+.pagination__page--active {
+  background: #49343b;
+  border-color: #49343b;
+  color: #f8f1ed;
+}
+
+.pagination__arrow:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination__ellipsis {
+  min-width: 1.5rem;
+  text-align: center;
+  color: rgb(73 52 59 / 0.45);
+  font-size: 0.875rem;
 }

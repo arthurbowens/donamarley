@@ -3,11 +3,11 @@
     Pedidos pelo WhatsApp. Sem pagamento no site.
   </div>
 
-  <div class="sticky top-0 z-50 bg-white shadow-sm">
+  <div class="site-sticky sticky top-0 z-[100] bg-white shadow-sm">
   <header class="site-header border-b border-line">
     <div class="page-shell">
-      <div class="site-header__row">
-        <a href="#" class="site-logo">
+      <div class="site-header__row site-header__row--mobile">
+        <a href="/" class="site-logo" (click)="$event.preventDefault()">
           <img
             src="/logo-mark.png?v=4"
             alt=""
@@ -42,7 +42,7 @@
         <div class="site-header__actions">
           <button
             type="button"
-            (click)="toggleCart()"
+            (click)="toggleCart(); $event.stopPropagation()"
             class="header-icon-btn relative"
             [attr.aria-expanded]="cartOpen()"
             aria-controls="cart-panel"
@@ -59,7 +59,7 @@
           <button
             type="button"
             class="header-icon-btn lg:hidden"
-            (click)="toggleFilters()"
+            (click)="toggleFilters(); $event.stopPropagation()"
             aria-label="Abrir menu de categorias"
             [attr.aria-expanded]="filtersOpen()"
           >
@@ -70,16 +70,18 @@
         </div>
       </div>
 
-      <label class="lg:hidden pb-3 block">
-        <span class="sr-only">Buscar produtos</span>
-        <input
-          type="search"
-          [value]="searchQuery()"
-          (input)="onSearchInput($event)"
-          placeholder="Buscar produtos"
-          class="search-input"
-        />
-      </label>
+      <div class="site-header__search-mobile lg:hidden pb-3">
+        <label class="block w-full">
+          <span class="sr-only">Buscar produtos</span>
+          <input
+            type="search"
+            [value]="searchQuery()"
+            (input)="onSearchInput($event)"
+            placeholder="Buscar produtos"
+            class="search-input"
+          />
+        </label>
+      </div>
     </div>
   </header>
 
@@ -194,11 +196,13 @@
 
         <div class="results-bar">
           <p class="text-sm text-vinho/60">
-            <span class="font-semibold text-vinho">{{ filteredProducts().length }}</span> produtos encontrados
+            @if (filteredProducts().length > 0) {
+              Mostrando <span class="font-semibold text-vinho">{{ paginationFrom() }}-{{ paginationTo() }}</span> de
+              <span class="font-semibold text-vinho">{{ filteredProducts().length }}</span> produtos
+            } @else {
+              Nenhum produto encontrado
+            }
           </p>
-          <button type="button" class="lg:hidden text-xs font-semibold text-rosa" (click)="toggleFilters()">
-            Menu de categorias
-          </button>
         </div>
 
         @if (filteredProducts().length === 0) {
@@ -211,7 +215,7 @@
           </div>
         } @else {
           <ul class="product-grid">
-            @for (product of filteredProducts(); track product.id) {
+            @for (product of paginatedProducts(); track product.id) {
               <li class="h-full">
                 <article class="bnw-card relative flex h-full flex-col overflow-hidden">
                   @if (discountPercent(product); as discount) {
@@ -267,9 +271,12 @@
                         [href]="whatsAppUrlForProduct(product)"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="inline-flex h-11 items-center justify-center rounded-xl border border-champagne text-xs font-semibold hover:border-rosa hover:text-rosa transition-colors"
+                        class="wa-icon-btn"
+                        aria-label="Pedir no WhatsApp"
                       >
-                        WhatsApp
+                        <svg viewBox="0 0 24 24" class="size-5" aria-hidden="true" fill="currentColor">
+                          <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.86 9.86 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.86 9.86 0 0 0 12.04 2Zm0 1.67c2.19 0 4.12.86 5.65 2.39a7.98 7.98 0 0 1 2.34 5.65c0 4.75-3.86 8.61-8.62 8.61a8.2 8.2 0 0 1-3.95-1.01l-.28-.16-2.48.65.66-2.42-.18-.27a8.18 8.18 0 0 1-1.26-4.4c0-4.75 3.87-8.61 8.63-8.61Zm-1.99 4.05c-.2 0-.46.07-.69.34-.23.27-.89.87-.89 2.12 0 1.25.91 2.46 1.04 2.63.13.17 1.78 2.86 4.38 3.89 2.17.86 2.61.69 3.08.65.47-.04 1.52-.62 1.74-1.22.22-.6.22-1.12.15-1.22-.07-.1-.23-.16-.48-.28-.25-.12-1.48-.73-1.71-.81-.23-.08-.4-.12-.57.12-.17.23-.66.81-.81.98-.15.17-.3.19-.55.07-.25-.12-1.05-.39-2-1.24-.74-.66-1.24-1.47-1.39-1.72-.15-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.17-.23.25-.39.08-.16.04-.3-.02-.43-.06-.12-.57-1.37-.78-1.88-.2-.48-.41-.42-.57-.43h-.49Z"/>
+                        </svg>
                       </a>
                       <button
                         type="button"
@@ -287,13 +294,43 @@
               </li>
             }
           </ul>
+
+          @if (totalPages() > 1) {
+            <nav class="pagination" aria-label="Paginação de produtos">
+              <button type="button" class="pagination__arrow" (click)="previousPage()" [disabled]="currentPage() <= 1" aria-label="Página anterior">
+                ‹
+              </button>
+
+              <ul class="pagination__pages">
+                @for (page of visiblePages(); track page; let idx = $index) {
+                  @if (idx > 0 && page - visiblePages()[idx - 1] > 1) {
+                    <li class="pagination__ellipsis" aria-hidden="true">…</li>
+                  }
+                  <li>
+                    <button
+                      type="button"
+                      class="pagination__page"
+                      [class.pagination__page--active]="currentPage() === page"
+                      (click)="goToPage(page)"
+                    >
+                      {{ page }}
+                    </button>
+                  </li>
+                }
+              </ul>
+
+              <button type="button" class="pagination__arrow" (click)="nextPage()" [disabled]="currentPage() >= totalPages()" aria-label="Próxima página">
+                ›
+              </button>
+            </nav>
+          }
         }
       </main>
   </div>
 
   @if (filtersOpen()) {
-    <div class="fixed inset-0 z-[60] bg-vinho/40 lg:hidden" (click)="closeFilters()" aria-hidden="true"></div>
-    <aside class="fixed inset-y-0 left-0 z-[70] w-[min(100%,22rem)] bg-white border-r border-line p-5 overflow-y-auto lg:hidden">
+    <div class="drawer-backdrop lg:hidden" (click)="closeFilters()" aria-hidden="true"></div>
+    <aside class="drawer drawer--left lg:hidden" (click)="$event.stopPropagation()">
       <div class="flex items-center justify-between mb-5">
         <h2 class="font-semibold text-lg">Categorias</h2>
         <button type="button" (click)="closeFilters()" class="size-9 rounded-lg border border-champagne" aria-label="Fechar menu">✕</button>
@@ -342,12 +379,13 @@
   }
 
   @if (cartOpen()) {
-    <div class="fixed inset-0 z-[60] bg-vinho/40" (click)="closeCart()" aria-hidden="true"></div>
+    <div class="drawer-backdrop" (click)="closeCart()" aria-hidden="true"></div>
     <aside
       id="cart-panel"
-      class="fixed top-0 right-0 z-[70] h-full w-full max-w-md bg-perola border-l border-line flex flex-col"
+      class="drawer drawer--right"
       role="dialog"
       aria-labelledby="cart-title"
+      (click)="$event.stopPropagation()"
     >
       <div class="flex items-center justify-between px-5 py-4 border-b border-line bg-white">
         <h2 id="cart-title" class="font-[family-name:var(--font-display)] text-2xl">Carrinho</h2>
@@ -385,11 +423,14 @@
           [href]="cartWhatsAppUrl()"
           target="_blank"
           rel="noopener noreferrer"
-          class="block h-11 leading-[2.75rem] rounded-xl bg-vinho text-perola text-center text-sm font-semibold hover:bg-rosa transition-colors"
+          class="wa-icon-btn wa-icon-btn--large mx-auto"
+          aria-label="Enviar pedido no WhatsApp"
           [class.opacity-50]="cart().length === 0"
           [class.pointer-events-none]="cart().length === 0"
         >
-          Enviar pedido no WhatsApp
+          <svg viewBox="0 0 24 24" class="size-6" aria-hidden="true" fill="currentColor">
+            <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.86 9.86 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.86 9.86 0 0 0 12.04 2Zm0 1.67c2.19 0 4.12.86 5.65 2.39a7.98 7.98 0 0 1 2.34 5.65c0 4.75-3.86 8.61-8.62 8.61a8.2 8.2 0 0 1-3.95-1.01l-.28-.16-2.48.65.66-2.42-.18-.27a8.18 8.18 0 0 1-1.26-4.4c0-4.75 3.87-8.61 8.63-8.61Zm-1.99 4.05c-.2 0-.46.07-.69.34-.23.27-.89.87-.89 2.12 0 1.25.91 2.46 1.04 2.63.13.17 1.78 2.86 4.38 3.89 2.17.86 2.61.69 3.08.65.47-.04 1.52-.62 1.74-1.22.22-.6.22-1.12.15-1.22-.07-.1-.23-.16-.48-.28-.25-.12-1.48-.73-1.71-.81-.23-.08-.4-.12-.57.12-.17.23-.66.81-.81.98-.15.17-.3.19-.55.07-.25-.12-1.05-.39-2-1.24-.74-.66-1.24-1.47-1.39-1.72-.15-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.17-.23.25-.39.08-.16.04-.3-.02-.43-.06-.12-.57-1.37-.78-1.88-.2-.48-.41-.42-.57-.43h-.49Z"/>
+          </svg>
         </a>
       </div>
     </aside>
@@ -398,8 +439,10 @@
   <footer class="page-shell pt-2 border-t border-line">
     <div class="py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-vinho/55">
       <p>© {{ year }} Dona Marley Perfumaria</p>
-      <a [href]="storeWhatsAppUrl" target="_blank" rel="noopener noreferrer" class="font-medium text-rosa hover:underline">
-        Atendimento WhatsApp
+      <a [href]="storeWhatsAppUrl" target="_blank" rel="noopener noreferrer" class="wa-icon-btn wa-icon-btn--footer" aria-label="Atendimento WhatsApp">
+        <svg viewBox="0 0 24 24" class="size-5" aria-hidden="true" fill="currentColor">
+          <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.86 9.86 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.86 9.86 0 0 0 12.04 2Zm0 1.67c2.19 0 4.12.86 5.65 2.39a7.98 7.98 0 0 1 2.34 5.65c0 4.75-3.86 8.61-8.62 8.61a8.2 8.2 0 0 1-3.95-1.01l-.28-.16-2.48.65.66-2.42-.18-.27a8.18 8.18 0 0 1-1.26-4.4c0-4.75 3.87-8.61 8.63-8.61Zm-1.99 4.05c-.2 0-.46.07-.69.34-.23.27-.89.87-.89 2.12 0 1.25.91 2.46 1.04 2.63.13.17 1.78 2.86 4.38 3.89 2.17.86 2.61.69 3.08.65.47-.04 1.52-.62 1.74-1.22.22-.6.22-1.12.15-1.22-.07-.1-.23-.16-.48-.28-.25-.12-1.48-.73-1.71-.81-.23-.08-.4-.12-.57.12-.17.23-.66.81-.81.98-.15.17-.3.19-.55.07-.25-.12-1.05-.39-2-1.24-.74-.66-1.24-1.47-1.39-1.72-.15-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.17-.23.25-.39.08-.16.04-.3-.02-.43-.06-.12-.57-1.37-.78-1.88-.2-.48-.41-.42-.57-.43h-.49Z"/>
+        </svg>
       </a>
     </div>
   </footer>

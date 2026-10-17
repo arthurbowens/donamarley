@@ -25,12 +25,13 @@ interface ActiveFilter {
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App {
   /** Troque pelo WhatsApp da loja (DDI + DDD + número, só dígitos). */
-  readonly whatsappPhone = '5511999999999';
+  readonly whatsappPhone = '5511959710586';
 
   readonly shopCategories = shopCategories;
   readonly allProducts = products;
@@ -48,6 +49,8 @@ export class App {
   readonly searchQuery = signal('');
   readonly megaMenuCategoryId = signal<string | null>(null);
   readonly mobileExpandedCategoryId = signal<string | null>(null);
+  readonly currentPage = signal(1);
+  readonly pageSize = 9;
 
   readonly cartCount = computed(() =>
     this.cart().reduce((total, line) => total + line.quantity, 0),
@@ -114,7 +117,37 @@ export class App {
     });
   });
 
+  readonly totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.filteredProducts().length / this.pageSize)),
+  );
+
+  readonly paginatedProducts = computed(() => {
+    const page = Math.min(this.currentPage(), this.totalPages());
+    const start = (page - 1) * this.pageSize;
+    return this.filteredProducts().slice(start, start + this.pageSize);
+  });
+
+  readonly paginationFrom = computed(() => {
+    if (this.filteredProducts().length === 0) return 0;
+    return (Math.min(this.currentPage(), this.totalPages()) - 1) * this.pageSize + 1;
+  });
+
+  readonly paginationTo = computed(() => {
+    const total = this.filteredProducts().length;
+    if (total === 0) return 0;
+    return Math.min(this.currentPage() * this.pageSize, total);
+  });
+
+  readonly visiblePages = computed(() => {
+    const total = this.totalPages();
+    const current = Math.min(this.currentPage(), total);
+    const pages = new Set<number>([1, total, current, current - 1, current + 1]);
+    return [...pages].filter((page) => page >= 1 && page <= total).sort((a, b) => a - b);
+  });
+
   toggleCart(): void {
+    this.filtersOpen.set(false);
+    this.closeMegaMenu();
     this.cartOpen.update((open) => !open);
   }
 
@@ -123,6 +156,8 @@ export class App {
   }
 
   toggleFilters(): void {
+    this.cartOpen.set(false);
+    this.closeMegaMenu();
     this.filtersOpen.update((open) => !open);
   }
 
@@ -133,12 +168,14 @@ export class App {
   selectCategory(categoryId: string | null): void {
     this.selectedCategoryId.set(categoryId);
     this.selectedSubcategory.set(null);
+    this.resetPagination();
     this.filtersOpen.set(false);
     this.closeMegaMenu();
   }
 
   selectSubcategory(subcategory: string | null): void {
     this.selectedSubcategory.set(subcategory);
+    this.resetPagination();
     this.filtersOpen.set(false);
     this.closeMegaMenu();
   }
@@ -184,6 +221,7 @@ export class App {
   applyCategoryFilter(categoryId: string): void {
     this.selectedCategoryId.set(categoryId);
     this.selectedSubcategory.set(null);
+    this.resetPagination();
     this.closeMegaMenu();
     this.closeFilters();
   }
@@ -191,6 +229,7 @@ export class App {
   applySubcategoryFilter(categoryId: string, subcategory: string): void {
     this.selectedCategoryId.set(categoryId);
     this.selectedSubcategory.set(subcategory);
+    this.resetPagination();
     this.closeMegaMenu();
     this.closeFilters();
   }
@@ -203,20 +242,41 @@ export class App {
     if (filter.type === 'category') {
       this.selectedCategoryId.set(null);
       this.selectedSubcategory.set(null);
-      return;
+    } else {
+      this.selectedSubcategory.set(null);
     }
-    this.selectedSubcategory.set(null);
+    this.resetPagination();
   }
 
   clearFilters(): void {
     this.selectedCategoryId.set(null);
     this.selectedSubcategory.set(null);
     this.searchQuery.set('');
+    this.resetPagination();
   }
 
   onSearchInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery.set(value);
+    this.resetPagination();
+  }
+
+  goToPage(page: number): void {
+    const safePage = Math.min(Math.max(1, page), this.totalPages());
+    this.currentPage.set(safePage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  previousPage(): void {
+    this.goToPage(this.currentPage() - 1);
+  }
+
+  nextPage(): void {
+    this.goToPage(this.currentPage() + 1);
+  }
+
+  private resetPagination(): void {
+    this.currentPage.set(1);
   }
 
   addToCart(product: Product): void {
