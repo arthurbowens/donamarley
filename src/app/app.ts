@@ -32,6 +32,7 @@ interface ActiveFilter {
 export class App {
   /** Troque pelo WhatsApp da loja (DDI + DDD + número, só dígitos). */
   readonly whatsappPhone = '5511959710586';
+  readonly whatsappDisplay = '+55 11 95971-0586';
 
   readonly shopCategories = shopCategories;
   readonly allProducts = products;
