@@ -8,6 +8,7 @@ import {
   shopCategories,
   ShopCategory,
 } from './catalog';
+import { WhatsappIcon } from './whatsapp-icon';
 
 interface CartLine {
   key: string;
@@ -26,6 +27,7 @@ interface ActiveFilter {
 @Component({
   selector: 'app-root',
   standalone: true,
+  imports: [WhatsappIcon],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
