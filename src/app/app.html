@@ -7,36 +7,23 @@
   <header class="site-header border-b border-line">
     <div class="page-shell">
       <div class="site-header__row">
-        <div class="site-header__brand">
-          <button
-            type="button"
-            class="lg:hidden inline-flex size-10 items-center justify-center rounded-lg border border-champagne text-vinho"
-            (click)="toggleFilters()"
-            aria-label="Abrir filtros"
-          >
-            <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16" />
-            </svg>
-          </button>
-
-          <a href="#" class="site-logo flex items-center min-w-0 shrink-0">
-            <img
-              src="/logo-mark.png?v=4"
-              alt=""
-              class="site-logo__mark sm:hidden h-10 w-auto object-contain"
-              width="80"
-              height="80"
-              aria-hidden="true"
-            />
-            <img
-              src="/logo.png?v=4"
-              alt="Dona Marley Perfumaria"
-              class="site-logo__full hidden sm:block h-11 md:h-14 w-auto max-w-[11.5rem] md:max-w-[13rem] object-contain object-left"
-              width="260"
-              height="120"
-            />
-          </a>
-        </div>
+        <a href="#" class="site-logo">
+          <img
+            src="/logo-mark.png?v=4"
+            alt=""
+            class="site-logo__mark sm:hidden"
+            width="96"
+            height="96"
+            aria-hidden="true"
+          />
+          <img
+            src="/logo.png?v=4"
+            alt="Dona Marley Perfumaria"
+            class="site-logo__full hidden sm:block"
+            width="320"
+            height="140"
+          />
+        </a>
 
         <label class="site-header__search relative">
           <span class="sr-only">Buscar produtos</span>
@@ -56,16 +43,29 @@
           <button
             type="button"
             (click)="toggleCart()"
-            class="relative inline-flex h-10 items-center justify-center rounded-full bg-rosa text-perola px-5 text-sm font-semibold"
+            class="header-icon-btn relative"
             [attr.aria-expanded]="cartOpen()"
             aria-controls="cart-panel"
+            aria-label="Abrir carrinho"
           >
-            Carrinho
+            <svg class="size-[1.35rem]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+            </svg>
             @if (cartCount() > 0) {
-              <span class="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full bg-vinho text-[10px] font-semibold flex items-center justify-center">
-                {{ cartCount() }}
-              </span>
+              <span class="header-icon-btn__badge">{{ cartCount() }}</span>
             }
+          </button>
+
+          <button
+            type="button"
+            class="header-icon-btn lg:hidden"
+            (click)="toggleFilters()"
+            aria-label="Abrir menu de categorias"
+            [attr.aria-expanded]="filtersOpen()"
+          >
+            <svg class="size-[1.35rem]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
           </button>
         </div>
       </div>

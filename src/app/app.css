@@ -1,12 +1,18 @@
 :host {
   display: block;
   min-height: 100vh;
-  --header-height: 4.75rem;
+  --header-height: 5rem;
+}
+
+@media (min-width: 640px) {
+  :host {
+    --header-height: 5.5rem;
+  }
 }
 
 @media (min-width: 1024px) {
   :host {
-    --header-height: 5.25rem;
+    --header-height: 6rem;
   }
 }
 
@@ -30,21 +36,88 @@
   min-height: var(--header-height);
 }
 
-.site-header__brand {
+.site-logo {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  min-width: 0;
   flex-shrink: 0;
-}
-
-.site-logo {
   line-height: 0;
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.75rem;
+  transition: background-color 0.15s ease;
 }
 
-.site-logo__full,
+.site-logo:hover {
+  background-color: rgb(248 241 237 / 0.85);
+}
+
 .site-logo__mark {
-  filter: contrast(1.02);
+  height: 3.25rem;
+  width: auto;
+  max-width: 5.5rem;
+  object-fit: contain;
+  filter: contrast(1.03);
+}
+
+.site-logo__full {
+  height: 4rem;
+  width: auto;
+  max-width: 15rem;
+  object-fit: contain;
+  object-position: left center;
+  filter: contrast(1.03);
+}
+
+@media (min-width: 768px) {
+  .site-logo__full {
+    height: 4.75rem;
+    max-width: 17.5rem;
+  }
+}
+
+.site-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.header-icon-btn {
+  position: relative;
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid #e7d5c7;
+  background: #fff;
+  color: #49343b;
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+}
+
+.header-icon-btn:hover {
+  border-color: #b97983;
+  color: #b97983;
+  background: #f8f1ed;
+}
+
+.header-icon-btn__badge {
+  position: absolute;
+  top: -0.2rem;
+  right: -0.2rem;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding-inline: 0.2rem;
+  border-radius: 9999px;
+  background: #49343b;
+  color: #f8f1ed;
+  font-size: 0.625rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .site-header__search {
@@ -58,11 +131,6 @@
   .site-header__search {
     display: block;
   }
-}
-
-.site-header__actions {
-  margin-left: auto;
-  flex-shrink: 0;
 }
 
 .search-input {
