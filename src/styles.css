@@ -1,3 +1,30 @@
-/* You can add global styles to this file, and also import other style files */
+@import 'tailwindcss';
 
-@import "tailwindcss";
+@theme {
+  --color-rosa: #b97983;
+  --color-champagne: #e7d5c7;
+  --color-perola: #f8f1ed;
+  --color-vinho: #49343b;
+  --color-surface: #f5f0ec;
+  --color-line: #ece4de;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Outfit', system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-surface);
+  color: var(--color-vinho);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+input,
+button {
+  font: inherit;
+}
